@@ -39,17 +39,17 @@ const Empleados = () => {
 
   const loadEmpleados = () => {
     API.getEmpleados()
-      .then(res => {
-        res.data.forEach(e => e.nombreCompleto = `${e.nombre} ${e.apellido1} ${e.apellido2}`)
-        setEmpleados(res.data)
+      .then(({data}) => {
+        data.forEach(e => e.nombreCompleto = `${e.nombre} ${e.apellido1} ${e.apellido2}`)
+        setEmpleados(data)
       })
-      .catch(err => console.log(err))
+      .catch(console.log)
   }
 
   const deleteEmpleado = (id) => {
     API.deleteEmpleado(id)
       .then(res => this.loadEmpleados())
-      .catch(err => console.log(err))
+      .catch(console.log)
   }
 
   return (

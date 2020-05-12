@@ -8,10 +8,17 @@ const { Title } = Typography;
 
 const Empresas = () => {
   const [empresas, setEmpresas] = useState(0)
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
-    loadEmpresas()
-  })
+    API.getEmpresas()
+    .then(res => {
+      res.data.forEach(e => e.nombreResponsable = `${e.responsable.nombre} ${e.responsable.apellido1} ${e.responsable.apellido2}`)
+      setEmpresas(res.data)
+      setReload(0)
+    })
+    .catch(console.log)
+  },[reload])
 
   const titleStyle = {
     marginTop: 20
@@ -43,19 +50,10 @@ const Empresas = () => {
       },
   ]
 
-  const loadEmpresas = () => {
-    API.getEmpresas()
-      .then(res => {
-        res.data.forEach(e => e.nombreResponsable = `${e.responsable.nombre} ${e.responsable.apellido1} ${e.responsable.apellido2}`)
-        setEmpresas(res.data)
-      })
-      .catch(err => console.log(err))
-  }
-  
   const deleteEmpresa = (id) => {
     API.deleteEmpresa(id)
-      .then(res => this.loadEmpresas())
-      .catch(err => console.log(err))
+      .then(setReload)
+      .catch(console.log)
   }
 
   return (

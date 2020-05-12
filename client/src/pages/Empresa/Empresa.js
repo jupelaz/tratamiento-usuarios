@@ -7,14 +7,29 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const Empresa = (props) => {
-  const [empresa, setEmpresa] = useState(0)
-  const [empleados, setEmpleados] = useState(0)
 
   const history = useHistory();
+  const [form] = Form.useForm();
+
+  const [empresa, setEmpresa] = useState(0)
+  const [empleados, setEmpleados] = useState(
+    [
+      {
+        _id: '',
+        nombre: ''
+      }
+    ]
+  )
 
   useEffect(() => {
-    loadEmpresa()
-  })
+    API.getEmpresa(props.match.params.id)
+        .then(({data}) => {
+          setEmpresa(data)
+          form.setFieldsValue(data)
+        })
+        .catch(console.log)
+    loadEmpleados()
+  },[props.match.params.id, form])
   
   const layout = {
     labelCol: { span: 8 },
@@ -29,44 +44,32 @@ const Empresa = (props) => {
     marginTop: 20,
   }
 
-  const loadEmpresa = () => {
-    if(props.match.params.id !== '0'){
-      API.getEmpresa(props.match.params.id)
-        .then(res => {
-          setEmpresa(res.data)
-          form.setFieldsValue({
-            nombre: res.data.nombre,
-            responsable: res.data.responsable
-          })
-        })
-        .catch(err => console.log(err));
-    }
+  const loadEmpleados = () => {
+    API.getEmpleados()
+      .then(({data}) => {
+        setEmpleados(data)
+      })
+      .catch(console.log);
   }
 
-  const [form] = Form.useForm();
-
-  const onFinish = (values) => {
-    console.log(values)
-    if (values.nombre) {
+  const onFinish = ({nombre, responsable}) => {
+    if (nombre) {
       if(empresa._id){
-        var emp = empresa
-        emp.nombre = values.nombre
-        emp.responsable = values.responsable
-        setEmpresa(emp)
+        setEmpresa({nombre, responsable})
         API.updateEmpresa(empresa)
           .then(history.push('/empresas'))
-          .catch(err => console.log(err));
+          .catch(console.log);
       }else{
         API.saveEmpresa({
-          nombre: values.nombre,
-          responsable: values.responsable,
+          nombre,
+          responsable,
           fechaAlta: Date.now().toString()
         })
           .then(history.push('/empresas'))
-          .catch(err => console.log(err));
+          .catch(console.log);
       }
     }
-    console.log('Success:', values);
+    console.log('Success:', {nombre, responsable});
   };
   
   const onFinishFailed = (errorInfo) => {
@@ -75,50 +78,9 @@ const Empresa = (props) => {
 
   const valoresInicio = () => {
     if(empresa._id){
-      form.setFieldsValue({
-        nombre: empresa.nombre,
-        responsable: empresa.responsable
-      })
+      form.setFieldsValue({...empresa})
     }else{
       form.resetFields()
-    }
-  }
-
-  const cargarSelect = () => {
-    if(!empleados){
-      
-      API.getEmpleados().then(
-        res => {
-        setEmpleados(res.data)
-        return (
-          <Select>
-            { res.data.map(empleado => (
-              <Option value={empleado._id}>{empleado.nombre}</Option>
-            ))}
-          </Select>
-        )})
-        .catch(err => {
-          console.log(err)
-          return(
-            <Select>
-              <Option>Sin resultados</Option>
-            </Select>
-          )
-        })
-    }else if(empleados.length){
-      return(
-        <Select>
-          { empleados.map(empleado => (
-            <Option value={empleado._id}>{empleado.nombre}</Option>
-          ))}
-        </Select>
-      )
-    }else{
-      return(
-        <Select>
-          <Option>Sin resultados</Option>
-        </Select>
-      )
     }
   }
   
@@ -128,12 +90,12 @@ const Empresa = (props) => {
       <Form {...layout} 
         form={form}
         onFinish={onFinish}
-        initialValues={valoresInicio}
         onFinishFailed={onFinishFailed}
       >
         <Form.Item
           label="Nombre"
           name="nombre"
+          value={empresa.nombre}
           rules={[{ required: true, message: 'Introduzca un nombre' }]}
         >
           <Input />
@@ -142,11 +104,17 @@ const Empresa = (props) => {
         <Form.Item
           label="Select"
           name="responsable"
+          value={empresa.nombre}
           hasFeedback
           rules={[{ required: true, message: 'Selecciona un responsable' }]}
         >
-          {cargarSelect()}
-          
+          <Select>
+            {empleados.map(({_id,nombre})=> {
+              return (
+              <Option value={_id}>{nombre}</Option>
+              )
+            })}
+          </Select>
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Space size="middle">

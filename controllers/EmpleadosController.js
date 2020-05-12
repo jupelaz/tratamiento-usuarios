@@ -3,8 +3,8 @@ const Item = require('../models/Empleados');
 
 // Definimos todos los metodos y logica para las rutas
 const Route = {
-	findAll: function(req, res) {
-		Item.find(req.query)
+	findAll: function({query}, res) {
+		Item.find(query)
 			.then(i => res.json(i))
 			.catch(err => res.status(422).json(err));
 	},
@@ -19,6 +19,7 @@ const Route = {
 			.catch(err => res.status(422).json(err));
 	},
 	update: function(req, res) {
+		console.log(req.params)
 		Item.findOneAndUpdate({ _id: req.params.id }, req.body)
 			.then(i => res.json(i))
 			.catch(err => res.status(422).json(err));

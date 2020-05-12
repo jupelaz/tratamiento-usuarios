@@ -14,7 +14,7 @@ export default {
     return axios.post('/api/agendas', data);
   },
   updateAgenda: (data) => {
-    return axios.post('/api/agendas/' + data._id, data);
+    return axios.put('/api/agendas/' + data._id, data);
   },
     getEmpleados: () => {
     return axios.get('/api/empleados');
@@ -29,7 +29,7 @@ export default {
     return axios.post('/api/empleados', data);
   },
   updateEmpleado: (data) => {
-    return axios.post('/api/empleados/' + data._id, data);
+    return axios.put('/api/empleados/' + data._id, data);
   },
   getEmpresas: () => {
     return axios.get('/api/empresas');
@@ -44,6 +44,6 @@ export default {
     return axios.post('/api/empresas', data);
   },
   updateEmpresa: (data) => {
-    return axios.post('/api/empresas/' + data._id, data);
+    return axios.put('/api/empresas/' + data._id, data);
   }
 };

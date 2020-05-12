@@ -1,21 +1,43 @@
 // Empleado.js
-import React, { useState, useEffect } from 'react'
+import React
+//, { useState, useEffect } 
+from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import API from '../../utils/API'
 import { Space, Form, Input, Button, Typography, Divider } from 'antd'
 const { Title } = Typography
 
 const Empleado = (props) => {
-  const [empleado, setEmpleado] = useState({
-    nombre: '',
-    apellido1: '',
-    apellido2: ''
-  })
+
+  const [form] = Form.useForm()
+
+  API.getEmpleado(props.match.params.id)
+        .then(({data}) => {
+          form.setFieldsValue(data)
+        })
+        .catch(console.log)
+        
   const history = useHistory()
 
-  useEffect(() => {
-    loadEmpleado()
-  })
+  //const [empleado, setEmpleado] = useState(
+  //   {
+  //   nombre: '',
+  //   apellido1: '',
+  //   apellido2: ''
+  // }
+  //)
+  
+
+  // useEffect(() => {
+  //   //loadEmpleado()
+  //   API.getEmpleado(props.match.params.id)
+  //       .then(({data}) => {
+  //         //setEmpleado(data)
+  //         form.setFieldsValue(data)
+  //         console.log(form.getFieldValue('_id'))
+  //       })
+  //       .catch(console.log)
+  // },[])
   
   const layout = {
     labelCol: { span: 8 },
@@ -30,45 +52,27 @@ const Empleado = (props) => {
     marginTop: 20,
   }
 
-  const loadEmpleado = () => {
-    if(!empleado.nombre && props.match.params.id !== '0'){
-      API.getEmpleado(props.match.params.id)
-        .then(res => {
-          setEmpleado(res.data)
-          form.setFieldsValue({
-            nombre: res.data.nombre,
-            apellido1: res.data.apellido1,
-            apellido2: res.data.apellido2
-          })
-        })
-        .catch(err => console.log(err))
-    }
-  }
-
-  const [form] = Form.useForm()
+  // const loadEmpleado = () => {
+  //   if(props.match.params.id !== '0'){
+  //     API.getEmpleado(props.match.params.id)
+  //       .then(({data}) => {
+  //         setEmpleado(data)
+  //         form.setFieldsValue(data)
+  //       })
+  //       .catch(console.log)
+  //   }
+  // }
 
   const onFinish = (values) => {
-    if (values.nombre && values.apellido1 && 
-      values.apellido2) {
-      if(empleado._id){
-        var emp = empleado
-        emp.nombre = values.nombre
-        emp.apellido1 = values.apellido1
-        emp.apellido2 = values.apellido2	
-        setEmpleado(emp)
-        API.updateEmpleado(empleado)
+    if(values._id){
+        API.updateEmpleado(values)
           .then(history.push('/empleados'))
-          .catch(err => console.log(err))
-      }else{
-        API.saveEmpleado({
-          nombre: values.nombre,
-          apellido1: values.apellido1,
-          apellido2: values.apellido2,
-          fechaAlta: Date.now().toString()
-        })
+          .catch(console.log)
+    }else{
+        values.fechaAlta = Date.now().toString()
+        API.saveEmpleado(values)
           .then(history.push('/empleados'))
-          .catch(err => console.log(err))
-      }
+          .catch(console.log)
     }
     console.log('Success:', values)
   }
@@ -77,30 +81,29 @@ const Empleado = (props) => {
     console.log('Failed:', errorInfo)
   }
 
-  const valoresInicio = () => {
-    if(empleado._id){
-      form.setFieldsValue({
-        nombre: empleado.nombre,
-        apellido1: empleado.apellido1,
-        apellido2: empleado.apellido2
-      })
-    }else{
-      form.resetFields()
-    }
-  }
+  // const valoresInicio = () => {
+  //   if(props.match.params.id){
+  //     form.setFieldsValue({...empleado})//...empleado convierte {nombre,apellido1,apellido2} en nombre,apellido1,apellido2
+  //   }else{
+  //     form.resetFields()
+  //   }
+  // }
 
   return (
     <div>
-      <Title style={titleStyle} level={4}>{empleado._id?"Editar empleado":"Añadir empleado"}</Title>
+      <Title style={titleStyle} level={4}>
+        {props.match.params.id?"Editar empleado":"Añadir empleado"}
+        </Title>
       <Form {...layout} 
         form={form}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
       >
+        <Form.Item name="_id"/>
         <Form.Item
           label="Nombre"
           name="nombre"
-          value={empleado.nombre}
+          //value={empleado.nombre}
           rules={[{ required: true, message: 'Introduzca un nombre' }]}
         >
           <Input />
@@ -108,7 +111,7 @@ const Empleado = (props) => {
         <Form.Item
           label="Apellido 1"
           name="apellido1"
-          value={empleado.apellido1}
+          //value={empleado.apellido1}
           rules={[{ required: true, message: 'Introduzca el primer apellido' }]}
         >
           <Input />
@@ -116,7 +119,7 @@ const Empleado = (props) => {
           <Form.Item
           label="Apellido 2"
           name="apellido2"
-          value={empleado.apellido2}
+          //value={empleado.apellido2}
           rules={[{ required: true, message: 'Introduzca el segundo apellido' }]}
         >
           <Input />
@@ -128,12 +131,12 @@ const Empleado = (props) => {
               type="primary" 
               htmlType="submit" 
               >
-              {empleado._id?"Editar":"Crear"}
+              {props.match.params.id?"Editar":"Crear"}
             </Button>
             <Divider/>
             <Button 
               type="primary" danger
-              onClick={valoresInicio}
+              //onClick={valoresInicio}
               >
               Cancelar
             </Button>	

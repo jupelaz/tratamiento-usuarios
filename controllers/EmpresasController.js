@@ -3,13 +3,13 @@ const Item = require('../models/Empresas');
 
 // Definimos todos los metodos y logica para las rutas
 const Route = {
-	findAll: function(req, res) {
-		Item.find(req.query).populate("responsable")
+	findAll: function({query}, res) {
+		Item.find(query).populate("responsable")
 			.then(i => res.json(i))
 			.catch(err => res.status(422).json(err));
 	},
 	findById: function(req, res) {
-		Item.findById(req.params.id).populate("responsable")
+		Item.findById(req.params.id)
 			.then(i => res.json(i))
 			.catch(err => res.status(422).json(err));
 	},
