@@ -3,15 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import API from '../../utils/API';
 import { Space, Form, Input, Button, Typography, Divider, Select } from 'antd';
+import { stringify } from 'querystring';
 const { Title } = Typography;
 const { Option } = Select;
 
-const Empresa = (props) => {
+const Empresa = (props: { match: { params: { id: any; }; }; }) => {
 
   const history = useHistory();
   const [form] = Form.useForm();
 
-  const [empresa, setEmpresa] = useState(0)
+  const [empresa, setEmpresa] = useState()
   const [empleados, setEmpleados] = useState(
     [
       {
@@ -28,7 +29,11 @@ const Empresa = (props) => {
           form.setFieldsValue(data)
         })
         .catch(console.log)
-    loadEmpleados()
+    API.getEmpleados()
+        .then(({data}) => {
+          setEmpleados(data)
+        })
+        .catch(console.log)
   },[props.match.params.id, form])
   
   const layout = {
@@ -44,58 +49,41 @@ const Empresa = (props) => {
     marginTop: 20,
   }
 
-  const loadEmpleados = () => {
-    API.getEmpleados()
-      .then(({data}) => {
-        setEmpleados(data)
-      })
-      .catch(console.log);
-  }
-
-  const onFinish = ({nombre, responsable}) => {
-    if (nombre) {
-      if(empresa._id){
-        setEmpresa({nombre, responsable})
-        API.updateEmpresa(empresa)
-          .then(history.push('/empresas'))
-          .catch(console.log);
-      }else{
-        API.saveEmpresa({
-          nombre,
-          responsable,
-          fechaAlta: Date.now().toString()
-        })
-          .then(history.push('/empresas'))
-          .catch(console.log);
-      }
-    }
-    console.log('Success:', {nombre, responsable});
-  };
   
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
-
-  const valoresInicio = () => {
-    if(empresa._id){
-      form.setFieldsValue({...empresa})
-    }else{
-      form.resetFields()
-    }
-  }
   
   return (
     <div>
-      <Title style={titleStyle} level={4}>{empresa._id?"Editar empresa":"Añadir empresa"}</Title>
+      <Title style={titleStyle} level={4}>
+        {/* {empresa._id?"Editar empresa":"Añadir empresa"} */}
+      </Title>
       <Form {...layout} 
         form={form}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+        onFinish={({nombre, responsable}) => {
+          if (nombre) {
+            // if(empresa._id){
+            //   // setEmpresa({nombre, responsable})
+            //   API.updateEmpresa(empresa)
+            //     // .then(history.push('/empresas'))
+            //     .catch(console.log);
+            // }else{
+            //   API.saveEmpresa({
+            //     nombre,
+            //     responsable,
+            //     fechaAlta: Date.now().toString()
+            //   })
+            //     // .then(history.push('/empresas'))
+            //     .catch(console.log);
+            // }
+          }
+          console.log('Success:', {nombre, responsable});
+        }}
+        onFinishFailed={(errorInfo) => {
+          console.log('Failed:', errorInfo)}}
       >
         <Form.Item
           label="Nombre"
           name="nombre"
-          value={empresa.nombre}
+          // value={empresa.nombre}
           rules={[{ required: true, message: 'Introduzca un nombre' }]}
         >
           <Input />
@@ -104,7 +92,7 @@ const Empresa = (props) => {
         <Form.Item
           label="Select"
           name="responsable"
-          value={empresa.nombre}
+          // value={empresa.nombre}
           hasFeedback
           rules={[{ required: true, message: 'Selecciona un responsable' }]}
         >
@@ -122,12 +110,18 @@ const Empresa = (props) => {
               type="primary" 
               htmlType="submit" 
               >
-              {empresa._id?"Editar":"Crear"}
+              {/* {empresa._id?"Editar":"Crear"} */}
             </Button>
             <Divider/>
             <Button 
               type="primary" danger
-              onClick={valoresInicio}
+              onClick={() => {
+                // if(empresa._id){
+                //   form.setFieldsValue({...empresa})
+                // }else{
+                //   form.resetFields()
+                // }
+              }}
               >
               Cancelar
             </Button>	

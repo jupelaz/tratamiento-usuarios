@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Start from './pages/Start';
 import Empleados from './pages/Empleados';
-import Empleado from './pages/Empleado';
 import Empresas from './pages/Empresas';
 import Empresa from './pages/Empresa';
 import NoMatch from './pages/NoMatch';
@@ -32,7 +31,6 @@ const App = () => (
         <Switch>
           <Route exact path="/" component={Start} />
           <Route exact path="/empleados" component={Empleados} />
-          <Route exact path="/empleados/:id" component={Empleado} />
           <Route exact path="/empresas" component={Empresas} />
           <Route exact path="/empresas/:id" component={Empresa} />
           <Route component={NoMatch} />

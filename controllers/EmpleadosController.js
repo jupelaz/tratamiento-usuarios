@@ -15,7 +15,10 @@ const Route = {
 	},
 	create: function(req, res) {
 		Item.create(req.body)
-			.then(i => res.json(i))
+			.then(i => {
+				console.log("fine 1")
+				console.log(i)
+				res.json(i)})
 			.catch(err => res.status(422).json(err));
 	},
 	update: function(req, res) {

@@ -7,13 +7,13 @@ import { Table, Space, Button, Typography, Divider } from 'antd';
 const { Title } = Typography;
 
 const Empresas = () => {
-  const [empresas, setEmpresas] = useState(0)
+  const [empresas, setEmpresas] = useState()
   const [reload, setReload] = useState(0)
 
   useEffect(() => {
     API.getEmpresas()
     .then(res => {
-      res.data.forEach(e => e.nombreResponsable = `${e.responsable.nombre} ${e.responsable.apellido1} ${e.responsable.apellido2}`)
+      res.data.forEach((e: { nombreResponsable: string; responsable: { nombre: any; apellido1: any; apellido2: any; }; }) => e.nombreResponsable = `${e.responsable.nombre} ${e.responsable.apellido1} ${e.responsable.apellido2}`)
       setEmpresas(res.data)
       setReload(0)
     })
@@ -38,7 +38,7 @@ const Empresas = () => {
     {
       title: 'Acción',
       key: 'action',
-      render: (text, record) => (
+      render: (text: any, record: { _id: string; }) => (
         <Space size="middle">
           <Button type="primary">
             <Link to={'/empresas/' + record._id}>Editar</Link>
@@ -50,9 +50,9 @@ const Empresas = () => {
       },
   ]
 
-  const deleteEmpresa = (id) => {
+  const deleteEmpresa = (id: string) => {
     API.deleteEmpresa(id)
-      .then(setReload)
+      .then(i => setReload)
       .catch(console.log)
   }
 
